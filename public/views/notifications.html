@@ -1,0 +1,124 @@
+<h2>Notifications</h2>
+<hr/>
+<div class="col-lg-10">
+
+  <div class="col-lg-5">
+    <hr>
+    <div class = "row container-fluid">
+        <div id="display-notifications">
+
+        </div>
+
+    </div>
+    
+  </div>
+  <hr>
+</div>
+
+<script>
+
+  //database reference to read from the firebase
+  var dbNotifications = firebase.database().ref("notification");
+
+  dbNotifications.on("value",function(notification){
+
+    if(notification.exists()){
+
+      var a = document.createElement('a'); 
+
+      var notificationhtml = "";
+      notification.forEach(function(notific){
+
+        notificationhtml += "<div class = 'jumbotron bg-light text-dark border-dark'>";
+            
+          notificationhtml += "<div class = 'row'>";
+            notificationhtml += "<div class='col-lg-5'> <p>"
+                    +"Title:" + notific.val().title
+                    + "</p> </div><br>" +
+
+                    "<div class='col-lg-9'> <p style = 'color:grey;'>"
+                    + "Published By:" + notific.val().publisher
+                    + "</p> </div>" +
+
+                    "<div class='col-lg-12'> <p style = 'color:grey;'>"
+                    + "Semester:" + notific.val().semester
+                    + "</p> </div>" +
+
+                    "<div class='col-lg-15'> <p style = 'color:grey;'>"
+                    + "Date:" + notific.val().date
+                    + "</p> </div>" ;
+
+            notificationhtml += "</div><br>";
+            
+            
+            notificationhtml += "<div class = 'form-group' style = 'text-align: justify; color: black;'>";
+              notificationhtml += "<button class = 'form-control btn btn-light bg-dark text-white' onclick = viewMagazine('"+notific.val().url+"')>View Magazine</button>"
+                          
+              notificationhtml += "<button class = 'form-control btn btn-light bg-dark text-white' onclick = 'acceptMagazine(\""+notific.key+"\",\""+notific.val().title+"\",\""+notific.val().publisher+"\",\""+notific.val().semester+"\",\""+notific.val().url+"\")'>Accept</button>"
+            
+              notificationhtml += "<button class = 'form-control btn btn-light bg-dark text-white' onclick = deleteMagazine('"+notific.key+"')>Reject Magazine</button>"
+              notificationhtml += "</div><br>";
+
+        
+            notificationhtml += "</div>";
+
+      });
+
+      $("#display-notifications").html(notificationhtml);
+     
+    }
+  });
+
+  function viewMagazine(file){
+        
+        window.open(file);
+  }
+
+
+
+  function acceptMagazine(key,title,publisher,semester,url){
+
+    var unique_file_name = new Date().getTime();
+
+    var database = firebase.database();
+    var ref = database.ref("magazine/"+key);
+            
+    var magazine = {
+      "magazineTitle" : title,
+      "magazinePublisher" : publisher,
+      "semester" : semester,
+      "file" : url,
+      "magazineId":key
+    };
+
+    ref.set(magazine, function(err){
+
+      if(err){
+         alert("Not Success");
+
+        
+      }else{
+        alert("Success");
+        deleteMagazine(key);
+      }
+
+    });
+
+  }
+
+
+
+  function deleteMagazine(key)
+    {
+        var deleteRef = firebase.database().ref().child("notification").child(key);
+
+        return deleteRef.remove()
+        .then(function(){
+            console.log("Deleted Successfully");
+        })
+        .catch(function(){
+            console.log("Error Occured");
+        });
+    }
+
+</script>

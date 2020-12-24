@@ -1,0 +1,152 @@
+<h2>Articles</h2>
+<hr/>
+
+<div class="row">
+
+    <div class="col-lg-5">
+        <h4>Post a Article</h4>
+        <form id="article-form">
+            <div class="form-group">
+                <label for = "article-title">Title</label>
+                <input type="text" class="form-control" id="article-title" />
+            
+                <div class="invalid-feedback">
+                    Please Enter the Article Title
+                </div>
+            </div>
+            <div class="form-group">
+                <label for = "article-author">Author</label>
+                <input type="text" class="form-control" id="article-author" />
+            
+                <div class="invalid-feedback">
+                    Please Enter the Article Author
+                </div>
+            </div>
+            <div class="form-group">
+                <label for = "article-body">Type The Article Body Here</label>
+                <textarea class="form-control" id="article-body" ></textarea>
+            
+                <div class="invalid-feedback">
+                    Please Enter the Article Body
+                </div>
+            </div>
+
+            <!--
+                <div class="form-group">
+                <div class='input-group date' id='datepicker'>
+                    <input type='text' class="form-control" />
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+            </div>
+            -->
+            
+            <div class="form-group">
+                <label for = "article-department">Department</label>
+                <input type="text" class="form-control" id="article-department" />
+            
+                <div class="invalid-feedback">
+                    Please Enter the Department
+                </div>
+            </div>
+            <div class="form-group">
+               
+                <button id="post-article" type="button" class="btn btn-primary">Post Article</button>
+            </div>
+
+        </form>
+        <div id = "result">
+
+        </div>
+
+    </div>  
+
+</div>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.min.js"></script>
+	<script >
+
+        //fuction for the datepicker
+	    $(function () {
+	        $('#datepicker').datepicker({
+	            format: "dd/mm/yyyy",
+	            autoclose: true,
+	            todayHighlight: true,
+		        showOtherMonths: true,
+		        selectOtherMonths: true,
+		        autoclose: true,
+		        changeMonth: true,
+		        changeYear: true,
+		        orientation: "button"
+	        });
+	    });
+
+        //reset form function
+        function resetForm(){
+            $("#article-form")[0].reset();
+            //$("#upload-progress").html("Completed");
+        }
+
+        //post button click
+        $("#post-article").click(function(){
+
+            $("#article-title").removeClass("is-invalid");
+            $("#article-author").removeClass("is-invalid");
+            $("#article-body").removeClass("is-invalid");
+           // $("#datepicker").removeClass("is-invalid");
+            $("#article-department").removeClass("is-invalid");
+
+            var article_title = $("#article-title").val();
+            var article_author = $("#article-author").val();
+            var article_body = $("#article-body").val();
+            var article_date = $("#datepicker").val();
+            var article_department = $("#article-department").val();
+
+            if(!article_title){
+                $("#article-title").addClass("is-invalid");
+                return;
+            }
+            if(!article_author){
+                $("#article-author").addClass("is-invalid");
+                return;
+            }
+            if(!article_body){
+                $("#article-body").addClass("is-invalid");
+                return;
+            }
+           
+            if(!article_department){
+                $("#article-department").addClass("is-invalid");
+                return;
+            }
+            var database = firebase.database();
+            var ref = database.ref("articles/").push();
+            
+            var key = ref.getKey();
+            
+            var data = {
+                "articleTitle": article_title,
+                "articleAuthor": article_author,
+                "articleDate": Date(),
+                "articleDepartment": article_department,
+                "articleBody": article_body,
+                "articleId":key
+            }
+            
+            ref.set(data, function(err){
+
+            if(err){
+                $("#result").attr("class","alert alert-danger");
+                $("#result").html(err.message);
+            }else{
+                
+                $("#result").attr("class","alert alert-success");
+                $("#result").html("Added");
+            }
+            
+            resetForm();
+            });
+            
+        });
+        
+	</script>

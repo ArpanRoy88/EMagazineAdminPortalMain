@@ -1,0 +1,146 @@
+<h2>Emergency Contacts</h2>
+<hr/>
+
+<div class="row">
+    <div class="col-lg-3">
+        <form id="contacts-form">
+
+            <div class="form-group">
+                <label for = "contact-name">Contact</label>
+                <select name = "contact-name" id = "contact-name">
+                    <option>Ambulance</option>
+                    <option>Health Center</option>
+                    <option>DSW</option>
+                    <option>Police</option>
+                    <option>Kanchenjunga Men's Hostel</option>
+                    <option>Patkai Men's Hostel</option>
+                    <option>Nilachal Men's Hostel</option>
+                    <option>Charaideo Men's Hostel</option>
+                    <option>CV Rahman Men's Hostel</option>
+                    <option>Subansiri Women's Hostel</option>
+                    <option>New Women's Hostel</option>
+                    <option>Dhansiri Women's Hostel</option>
+                    <option>Transit Women's Hostel</option>
+                    <option>Pobitora Women's Hostel</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for = "phone-number">Phone Number</label>
+                <input type="tel" class="form-control" id="phone-number" pattern="[0-9]{10}"/>
+            
+                <div class="invalid-feedback">
+                    Please Enter the Phone Number
+                </div>
+            </div>
+
+            <div class="form-group">
+               
+                <button id="submit-contact" type="button" class="btn btn-primary">Submit</button>
+            </div>
+
+        </form>
+        <div id = "result">
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-5">
+        <h4>Saved Contacts</h4>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Contact Name</th>
+                    <th>Contact Number</th>
+                </tr>
+
+            </thead>
+            <tbody id = "emergencyContacts_table">
+                
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+<script>
+
+
+    //reset form function
+    function resetForm(){
+            $("#contacts-form")[0].reset();
+            //$("#upload-progress").html("Completed");
+    }
+
+    $("#submit-contact").click(function(){
+
+
+        $("#phone-number").removeClass("is-invalid");
+
+        var contact_name = $("#contact-name").val();
+        var contact_number = $("#phone-number").val();
+
+        if(!contact_number){
+                $("#phone-number").addClass("is-invalid");
+                return;
+        }
+        var database = firebase.database();
+        var ref = database.ref("emergencyContacts/" + contact_name);
+            
+        //var key = ref.getKey();
+            
+        var data = {
+                "contactName": contact_name,
+                "contactNumber": contact_number
+        }
+
+        ref.set(data, function(err){
+
+            if(err){
+                $("#result").attr("class","alert alert-danger");
+                $("#result").html(err.message);
+            }else{
+                
+                $("#result").attr("class","alert alert-success");
+                $("#result").html("Added");
+            }
+
+            resetForm();
+        });
+
+    });
+
+
+
+    //database reference to read from the firebase
+    var emergencyDB = firebase.database().ref("emergencyContacts");
+
+    emergencyDB.on("value",function(contacts){
+        
+        if(contacts.exists()){
+            
+            var contactshtml = "";
+            contacts.forEach(function(cont){
+
+                contactshtml += "<tr>";
+                
+                //for Contact Name
+                contactshtml +="<td>";
+                contactshtml += cont.val().contactName;
+                contactshtml +="</td>";
+
+                //for semester
+                contactshtml +="<td>";
+                contactshtml += cont.val().contactNumber;
+                contactshtml +="</td>";
+
+                contactshtml += "</tr>";
+
+            });
+
+            $("#emergencyContacts_table").html(contactshtml);
+        }
+
+    });
+</script>
